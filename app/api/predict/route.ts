@@ -11,7 +11,6 @@ function extractMultipleRolesFromText(text: string): RoleMatch[] {
   const keywords: {
     [key: string]: { primary: string[]; secondary: string[]; weight: number };
   } = {
-    // Software Development
     "Frontend Developer": {
       primary: [
         "frontend",
@@ -106,7 +105,6 @@ function extractMultipleRolesFromText(text: string): RoleMatch[] {
       weight: 1,
     },
 
-    // Data & AI
     "Data Scientist": {
       primary: [
         "data scientist",
@@ -173,7 +171,6 @@ function extractMultipleRolesFromText(text: string): RoleMatch[] {
       weight: 1,
     },
 
-    // DevOps & Infrastructure
     "DevOps Engineer": {
       primary: [
         "devops",
@@ -222,7 +219,6 @@ function extractMultipleRolesFromText(text: string): RoleMatch[] {
       weight: 1,
     },
 
-    // Specialized Tech Roles
     "Database Administrator": {
       primary: ["database administrator", "dba", "database engineer"],
       secondary: [
@@ -284,7 +280,6 @@ function extractMultipleRolesFromText(text: string): RoleMatch[] {
       weight: 1,
     },
 
-    // Design & Creative
     "UI/UX Designer": {
       primary: [
         "ui designer",
@@ -315,7 +310,6 @@ function extractMultipleRolesFromText(text: string): RoleMatch[] {
       weight: 1,
     },
 
-    // Business & Management
     "Product Manager": {
       primary: ["product manager", "product owner", "product management"],
       secondary: ["roadmap", "agile", "scrum", "stakeholder", "requirements"],
@@ -342,7 +336,6 @@ function extractMultipleRolesFromText(text: string): RoleMatch[] {
       weight: 1,
     },
 
-    // Marketing & Sales
     "Digital Marketing Specialist": {
       primary: [
         "digital marketing",
@@ -390,7 +383,6 @@ function extractMultipleRolesFromText(text: string): RoleMatch[] {
       weight: 1,
     },
 
-    // Finance & Accounting
     "Financial Analyst": {
       primary: ["financial analyst", "finance analyst", "investment analyst"],
       secondary: [
@@ -419,7 +411,6 @@ function extractMultipleRolesFromText(text: string): RoleMatch[] {
       weight: 1,
     },
 
-    // Healthcare & Science
     "Biomedical Engineer": {
       primary: ["biomedical engineer", "bioengineering", "medical device"],
       secondary: [
@@ -452,7 +443,6 @@ function extractMultipleRolesFromText(text: string): RoleMatch[] {
       weight: 1,
     },
 
-    // Operations & Support
     "Technical Support": {
       primary: [
         "technical support",
@@ -484,7 +474,6 @@ function extractMultipleRolesFromText(text: string): RoleMatch[] {
       weight: 1,
     },
 
-    // Engineering (Non-Software)
     "Civil Engineer": {
       primary: [
         "civil engineer",
@@ -530,7 +519,6 @@ function extractMultipleRolesFromText(text: string): RoleMatch[] {
       weight: 1,
     },
 
-    // Internships & Entry Level
     "Software Intern": {
       primary: ["software intern", "developer intern", "engineering intern"],
       secondary: ["internship", "student", "fresher", "entry level"],
@@ -551,7 +539,6 @@ function extractMultipleRolesFromText(text: string): RoleMatch[] {
   const lowerText = text.toLowerCase();
   const roleMatches: RoleMatch[] = [];
 
-  // Calculate scores for each role
   for (const [role, { primary, secondary, weight }] of Object.entries(
     keywords
   )) {
@@ -559,7 +546,6 @@ function extractMultipleRolesFromText(text: string): RoleMatch[] {
     let secondaryMatches = 0;
     const matchedKeywords: string[] = [];
 
-    // Count primary keyword matches (higher weight)
     primary.forEach((term) => {
       if (lowerText.includes(term.toLowerCase())) {
         primaryMatches += 1;
@@ -567,7 +553,6 @@ function extractMultipleRolesFromText(text: string): RoleMatch[] {
       }
     });
 
-    // Count secondary keyword matches (lower weight)
     secondary.forEach((term) => {
       if (lowerText.includes(term.toLowerCase())) {
         secondaryMatches += 0.5;
@@ -575,11 +560,9 @@ function extractMultipleRolesFromText(text: string): RoleMatch[] {
       }
     });
 
-    // Calculate total score with role weight
     const score = (primaryMatches * 3 + secondaryMatches) * weight;
 
     if (score > 0.5) {
-      // Only include roles with meaningful matches
       roleMatches.push({
         role,
         score,
@@ -588,22 +571,18 @@ function extractMultipleRolesFromText(text: string): RoleMatch[] {
     }
   }
 
-  // Sort by score descending
   return roleMatches.sort((a, b) => b.score - a.score);
 }
 
-// New function to extract all unique keywords from matched roles
 function extractAllKeywords(roleMatches: RoleMatch[]): string[] {
   const allKeywords = new Set<string>();
   
-  // Add all matched keywords from all roles
   roleMatches.forEach(roleMatch => {
     roleMatch.matchedKeywords.forEach(keyword => {
       allKeywords.add(keyword.toLowerCase().trim());
     });
   });
 
-  // Also add the role names themselves as keywords
   roleMatches.forEach(roleMatch => {
     allKeywords.add(roleMatch.role.toLowerCase().trim());
   });
@@ -630,8 +609,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Validate file size (limit to 10MB)
-    const maxSize = 10 * 1024 * 1024; // 10MB
+    const maxSize = 10 * 1024 * 1024; 
     if (file.size > maxSize) {
       return NextResponse.json(
         {
@@ -641,11 +619,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Convert file to buffer
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Validate buffer
     if (!buffer || buffer.length === 0) {
       return NextResponse.json(
         { error: "Invalid file content" },
@@ -653,7 +629,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Parse PDF
     let pdfData;
     try {
       pdfData = await pdfParse(buffer);
@@ -668,7 +643,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Validate extracted text
     if (!pdfData.text || pdfData.text.trim().length === 0) {
       return NextResponse.json(
         {
@@ -683,24 +657,21 @@ export async function POST(req: NextRequest) {
 
     const roleMatches = extractMultipleRolesFromText(pdfData.text);
 
-    // Extract all keywords from the resume analysis
     const allKeywords = extractAllKeywords(roleMatches);
 
     console.log("All role matches:", roleMatches);
     console.log("All extracted keywords:", allKeywords);
 
-    // Get the top role for primary search, but return all matches
     const primaryRole =
       roleMatches.length > 0 ? roleMatches[0].role : "Software Engineer";
 
-    // Get top 5 roles for suggestions
     const topRoles = roleMatches.slice(0, 5);
 
     return NextResponse.json({
-      role: primaryRole, // Primary role for search
-      allMatches: roleMatches, // All matching roles with scores
-      topSuggestions: topRoles, // Top 5 suggestions
-      keywords: allKeywords, // All extracted keywords for job search
+      role: primaryRole, 
+      allMatches: roleMatches,
+      topSuggestions: topRoles, 
+      keywords: allKeywords, 
       success: true,
       debug: {
         textLength: pdfData.text.length,
@@ -712,7 +683,6 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error("Prediction error:", error);
 
-    // More specific error handling
     if (error instanceof Error) {
       if (error.message.includes("Invalid PDF")) {
         return NextResponse.json(

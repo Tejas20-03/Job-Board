@@ -7,16 +7,12 @@ import {
   TrendingUp,
   Sparkles,
   Briefcase,
-  MapPin,
-  Building2,
-  ExternalLink,
   Eye,
   X,
   Target,
   Award,
 } from "lucide-react";
 import JobCard from "@/components/JobCard";
-import LoadingSpinner from "@/components/LoadingSpinner";
 
 interface Job {
   _id: string;
@@ -63,7 +59,6 @@ export default function JobBoard() {
 
     setLoading(true);
     try {
-      // Track keyword for single query searches
       if (query.trim() && !keywords) {
         await fetch("/api/keywords", {
           method: "POST",
@@ -72,7 +67,6 @@ export default function JobBoard() {
         });
       }
 
-      // Search jobs with either query or keywords
       let searchUrl = "/api/jobs?";
       if (keywords && keywords.length > 0) {
         searchUrl += `keywords=${encodeURIComponent(keywords.join(","))}`;
@@ -111,7 +105,6 @@ export default function JobBoard() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // Use extracted keywords if available, otherwise use search query
     if (extractedKeywords.length > 0) {
       searchJobs(searchQuery, extractedKeywords);
     } else {
@@ -150,7 +143,6 @@ export default function JobBoard() {
       if (data.role) {
         setSearchQuery(data.role);
 
-        // Set extracted keywords for broader job search
         if (data.keywords && data.keywords.length > 0) {
           setExtractedKeywords(data.keywords);
           console.log(
@@ -159,13 +151,11 @@ export default function JobBoard() {
           );
         }
 
-        // Set suggested roles if available
         if (data.topSuggestions && data.topSuggestions.length > 0) {
           setSuggestedRoles(data.topSuggestions);
           setShowRoleSuggestions(true);
         }
 
-        // Search jobs using all extracted keywords
         await searchJobs(data.role, data.keywords);
       } else if (data.error) {
         alert(data.error);
@@ -180,7 +170,6 @@ export default function JobBoard() {
 
   const handleRoleSuggestionClick = (role: string) => {
     setSearchQuery(role);
-    // Use extracted keywords if available for broader search
     if (extractedKeywords.length > 0) {
       searchJobs(role, extractedKeywords);
     } else {
@@ -199,7 +188,6 @@ export default function JobBoard() {
       URL.revokeObjectURL(resumePreviewUrl);
       setResumePreviewUrl(null);
     }
-    // Reset file input
     const fileInput = document.getElementById(
       "resume-upload"
     ) as HTMLInputElement;
@@ -230,20 +218,17 @@ export default function JobBoard() {
     setShowRoleSuggestions(false);
   };
 
-  // Load trending keywords on component mount
   useEffect(() => {
     fetchTrendingKeywords();
   }, [fetchTrendingKeywords]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-      {/* Animated Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-600/20 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-indigo-400/20 to-pink-600/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
       </div>
 
-      {/* Header */}
       <header className="relative bg-white/80 backdrop-blur-lg shadow-lg border-b border-white/20 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="text-center">
@@ -264,10 +249,8 @@ export default function JobBoard() {
       </header>
 
       <main className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-        {/* Search and Upload Section */}
         <div className="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 p-6 md:p-8 mb-8 md:mb-12">
           <div className="grid lg:grid-cols-2 gap-6 md:gap-8">
-            {/* Search Bar */}
             <div className="space-y-4">
               <div className="flex items-center space-x-2">
                 <Search className="w-5 h-5 text-indigo-600" />
@@ -310,7 +293,6 @@ export default function JobBoard() {
                 </button>
               </form>
 
-              {/* Keywords Display */}
               {extractedKeywords.length > 0 && (
                 <div className="mt-4 p-4 bg-green-50/80 border border-green-200 rounded-xl">
                   <div className="flex items-center mb-2">
@@ -342,7 +324,6 @@ export default function JobBoard() {
               )}
             </div>
 
-            {/* Resume Upload */}
             <div className="space-y-4">
               <div className="flex items-center space-x-2">
                 <Sparkles className="w-5 h-5 text-purple-600" />
@@ -428,7 +409,6 @@ export default function JobBoard() {
             </div>
           </div>
 
-          {/* AI Role Suggestions */}
           {showRoleSuggestions && suggestedRoles.length > 0 && (
             <div className="mt-8 pt-6 border-t border-slate-200/50">
               <div className="flex items-center mb-4">
@@ -489,7 +469,6 @@ export default function JobBoard() {
             </div>
           )}
 
-          {/* Trending Keywords */}
           {trendingKeywords.length > 0 && (
             <div className="mt-8 pt-6 border-t border-slate-200/50">
               <div className="flex items-center mb-4">
@@ -519,7 +498,6 @@ export default function JobBoard() {
           )}
         </div>
 
-        {/* Loading State */}
         {loading && (
           <div className="flex justify-center py-16">
             <div className="text-center">
@@ -533,7 +511,7 @@ export default function JobBoard() {
           </div>
         )}
 
-        {/* Results */}
+        
         {!loading && jobs.length > 0 && (
           <div className="space-y-8">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -597,7 +575,6 @@ export default function JobBoard() {
           </div>
         )}
 
-        {/* Empty State */}
         {!loading &&
           jobs.length === 0 &&
           (searchQuery || extractedKeywords.length > 0) && (
@@ -616,7 +593,6 @@ export default function JobBoard() {
                   : "Don't worry! Try different keywords, check your spelling, or upload your resume for AI-powered suggestions."}
               </p>
 
-              {/* Show extracted keywords if available */}
               {extractedKeywords.length > 0 && (
                 <div className="mb-8">
                   <p className="text-slate-600 mb-4">
@@ -640,7 +616,6 @@ export default function JobBoard() {
                 </div>
               )}
 
-              {/* Show alternative role suggestions if available */}
               {suggestedRoles.length > 1 && (
                 <div className="mb-8">
                   <p className="text-slate-600 mb-4">
@@ -685,14 +660,12 @@ export default function JobBoard() {
             </div>
           )}
 
-        {/* Welcome State */}
         {!loading &&
           jobs.length === 0 &&
           !searchQuery &&
           extractedKeywords.length === 0 && (
             <div className="text-center py-16">
               <div className="max-w-4xl mx-auto">
-                {/* Hero Section */}
                 <div className="mb-16">
                   <div className="w-32 h-32 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-8 shadow-2xl">
                     <Sparkles className="w-16 h-16 text-white" />
@@ -727,7 +700,6 @@ export default function JobBoard() {
                   </div>
                 </div>
 
-                {/* Features Grid */}
                 <div className="grid md:grid-cols-3 gap-8 text-left">
                   <div className="group bg-white/60 backdrop-blur-sm p-8 rounded-2xl border border-white/20 hover:bg-white/80 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl">
                     <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
@@ -774,7 +746,6 @@ export default function JobBoard() {
                   </div>
                 </div>
 
-                {/* Stats Section */}
                 <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8">
                   <div className="text-center">
                     <div className="text-3xl md:text-4xl font-bold text-indigo-600 mb-2">
@@ -815,7 +786,6 @@ export default function JobBoard() {
       {showResumePreview && resumePreviewUrl && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col">
-            {/* Modal Header */}
             <div className="flex items-center justify-between p-6 border-b border-slate-200">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -836,7 +806,6 @@ export default function JobBoard() {
               </button>
             </div>
 
-            {/* PDF Viewer */}
             <div className="flex-1 p-6">
               <iframe
                 src={resumePreviewUrl}
@@ -845,7 +814,6 @@ export default function JobBoard() {
               />
             </div>
 
-            {/* Modal Footer */}
             <div className="flex items-center justify-end space-x-3 p-6 border-t border-slate-200">
               <button
                 onClick={closeResumePreview}
@@ -865,117 +833,20 @@ export default function JobBoard() {
         </div>
       )}
 
-      {/* Footer */}
-      <footer className="relative bg-slate-900 text-white py-16 mt-20">
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900"></div>
+      <footer className="relative bg-slate-900 text-white py-8 mt-20">
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
-            {/* Brand Section */}
-            <div className="lg:col-span-2">
-              <div className="flex items-center mb-6">
-                <Briefcase className="w-8 h-8 text-indigo-400 mr-3" />
-                <h3 className="text-2xl font-bold">JobBoard AI</h3>
-              </div>
-              <p className="text-slate-300 mb-6 leading-relaxed max-w-md">
-                Revolutionizing job discovery with cutting-edge AI technology.
-                Connect with opportunities that truly match your potential and
-                aspirations across multiple career paths using advanced keyword
-                extraction.
-              </p>
-              <div className="flex space-x-4">
-                <div className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center hover:bg-indigo-600 transition-colors cursor-pointer">
-                  <ExternalLink className="w-5 h-5" />
-                </div>
-                <div className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center hover:bg-indigo-600 transition-colors cursor-pointer">
-                  <Building2 className="w-5 h-5" />
-                </div>
-                <div className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center hover:bg-indigo-600 transition-colors cursor-pointer">
-                  <MapPin className="w-5 h-5" />
-                </div>
-              </div>
-            </div>
-
-            {/* Job Seekers */}
-            <div>
-              <h4 className="font-bold text-lg mb-6 text-white">
-                For Job Seekers
-              </h4>
-              <ul className="space-y-3">
-                {[
-                  "Multi-Keyword Extraction",
-                  "AI Resume Analysis",
-                  "Career Path Discovery",
-                  "Skill Matching",
-                  "Interview Prep",
-                  "Salary Insights",
-                ].map((item) => (
-                  <li key={item}>
-                    <a
-                      href="#"
-                      className="text-slate-300 hover:text-indigo-400 transition-colors duration-200 flex items-center group"
-                    >
-                      <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full mr-3 group-hover:bg-indigo-300"></span>
-                      {item}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Employers */}
-            <div>
-              <h4 className="font-bold text-lg mb-6 text-white">
-                For Employers
-              </h4>
-              <ul className="space-y-3">
-                {[
-                  "Post Jobs",
-                  "Find Diverse Talent",
-                  "AI Candidate Screening",
-                  "Analytics Dashboard",
-                  "Bulk Hiring Solutions",
-                  "Enterprise Integration",
-                ].map((item) => (
-                  <li key={item}>
-                    <a
-                      href="#"
-                      className="text-slate-300 hover:text-indigo-400 transition-colors duration-200 flex items-center group"
-                    >
-                      <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full mr-3 group-hover:bg-indigo-300"></span>
-                      {item}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          {/* Bottom Section */}
-          <div className="border-t border-slate-700 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
-            <p className="text-slate-400 text-sm mb-4 md:mb-0">
-              © 2024 JobBoard AI. All rights reserved. Powered by advanced
-              machine learning and multi-keyword extraction technology.
+          <div className="text-center">
+            <p className="text-slate-300 text-sm">
+              Developed with ❤️ by{" "}
+              <a
+                href="https://www.linkedin.com/in/tejas20/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-indigo-400 hover:text-indigo-300 transition-colors duration-200 font-medium"
+              >
+                Tejas Chhabra
+              </a>
             </p>
-            <div className="flex space-x-6 text-sm">
-              <a
-                href="#"
-                className="text-slate-400 hover:text-indigo-400 transition-colors"
-              >
-                Privacy Policy
-              </a>
-              <a
-                href="#"
-                className="text-slate-400 hover:text-indigo-400 transition-colors"
-              >
-                Terms of Service
-              </a>
-              <a
-                href="#"
-                className="text-slate-400 hover:text-indigo-400 transition-colors"
-              >
-                Contact Us
-              </a>
-            </div>
           </div>
         </div>
       </footer>

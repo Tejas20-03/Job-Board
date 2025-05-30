@@ -19,14 +19,12 @@ export async function GET(req: NextRequest) {
 
     let searchConditions: any;
 
-    // If keywords are provided (from resume analysis), use them for broader search
     if (keywords) {
       const keywordArray = keywords
         .split(",")
         .map((k: string) => k.trim())
         .filter((k: string) => k.length > 0);
 
-      // Create search conditions for multiple keywords
       const keywordConditions = keywordArray.map((keyword: string) => ({
         $or: [
           { job_title: { $regex: keyword, $options: "i" } },
@@ -36,12 +34,10 @@ export async function GET(req: NextRequest) {
         ],
       }));
 
-      // Use $or to match any of the keywords
       searchConditions = {
         $or: keywordConditions,
       };
     } else {
-      // Fallback to single query search
       searchConditions = {
         $or: [
           { job_title: { $regex: query, $options: "i" } },

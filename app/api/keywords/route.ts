@@ -7,7 +7,6 @@ export async function POST(req: NextRequest) {
     await connectDB();
     const { term, keywords } = await req.json();
 
-    // Handle single term
     if (term && typeof term === "string") {
       const keyword = await Keyword.findOneAndUpdate(
         { term: term.toLowerCase().trim() },
@@ -17,7 +16,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true, keyword });
     }
 
-    // Handle multiple keywords from resume analysis
     if (keywords && Array.isArray(keywords)) {
       const results = [];
       for (const keyword of keywords) {

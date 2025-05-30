@@ -40,20 +40,19 @@ async function loadJobsFromJsonl() {
       try {
         const job = JSON.parse(lines[i]);
 
-        // Validate required fields - note the field name change
         if (
           job.job_title &&
           job.company_name &&
           job.job_location &&
           job.apply_link &&
-          job.job_description // Changed from job.description to job.job_description
+          job.job_description
         ) {
           jobs.push({
             job_title: job.job_title.trim(),
             company_name: job.company_name.trim(),
             job_location: job.job_location.trim(),
             apply_link: job.apply_link.trim(),
-            description: job.job_description.trim(), // Map job_description to description
+            description: job.job_description.trim(),
             source: job.source?.trim() || "Unknown",
           });
         } else {
@@ -73,7 +72,6 @@ async function loadJobsFromJsonl() {
 
     console.log(`Parsed ${jobs.length} valid jobs from ${lines.length} lines`);
 
-    // Insert jobs in batches
     const batchSize = 100;
     let insertedCount = 0;
 
@@ -94,7 +92,6 @@ async function loadJobsFromJsonl() {
 
     console.log("Creating search indexes...");
 
-    // Create indexes one by one using the correct syntax
     await Job.collection.createIndex({
       job_title: "text",
       description: "text",
